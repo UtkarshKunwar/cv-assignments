@@ -33,5 +33,25 @@ ax1.imshow(img1),plt.title('Image 1')
 ax2.imshow(img2),plt.title('Image 2')
 
 cid = fig.canvas.mpl_connect('button_press_event', image_functions.onclick)
+counter = 1
+def onclick(event):
+    global ix, iy
+    ix, iy = event.xdata, event.ydata
+    global coords
+    global counter
+    if counter == 1:
+        coords[0].append((ix, iy))
+    else:
+        coords[1].append((ix, iy))
+    counter = counter * -1
 
 plt.show()
+        fig.canvas.mpl_disconnect(cid)
+        plt.close(1)
+    return
+
+coords = [[], []]
+cid = fig.canvas.mpl_connect('button_press_event', onclick)
+
+plt.show(1)
+print(coords)

@@ -8,6 +8,7 @@ import argparse
 def getPixels(event,x,y,flags,param):
     if event == cv2.EVENT_FLAG_LBUTTON:
         print(x,y)
+<<<<<<< HEAD
 
 #function to get pixel values from the given image using mouse pointer using matplotlib
 def onclick(event):
@@ -47,3 +48,5 @@ def matrixFormation(pts1, pts2):
         counter = counter + 1
 
     return A, B
+=======
+>>>>>>> assign-2-uk
