@@ -12,10 +12,8 @@ from matplotlib import pyplot as plt
 #----------------------------------------------------------------------------------
 # construct the argument parser and parse the arguments
 ap = argparse.ArgumentParser()
-ap.add_argument("-i", "--images", type=str, required=True,
-	help="path to input directory of images to stitch")
-ap.add_argument("-o", "--output", type=str, required=True,
-	help="path to the output image")
+ap.add_argument("-i", "--images", type=str, required=True, help="path to input directory of images to stitch")
+ap.add_argument("-o", "--output", type=str, required=True, help="path to the output image")
 args = vars(ap.parse_args())
 
 # grab the paths to the input images and initialize our images list
@@ -29,10 +27,10 @@ img2 = cv2.imread(imagePaths[1])
 fig = plt.figure()
 ax1 = fig.add_subplot(121)
 ax2 = fig.add_subplot(122)
-ax1.imshow(img1),plt.title('Image 1')
-ax2.imshow(img2),plt.title('Image 2')
+ax1.imshow(img1), ax1.set_title('Image 1')
+ax2.imshow(img2), ax2.set_title('Image 2')
 
-cid = fig.canvas.mpl_connect('button_press_event', image_functions.onclick)
+#function to get pixel values from the given image using mouse pointer using matplotlib
 counter = 1
 def onclick(event):
     global ix, iy
@@ -45,7 +43,7 @@ def onclick(event):
         coords[1].append((ix, iy))
     counter = counter * -1
 
-plt.show()
+    if len(coords[1]) == 4:
         fig.canvas.mpl_disconnect(cid)
         plt.close(1)
     return
@@ -54,4 +52,3 @@ coords = [[], []]
 cid = fig.canvas.mpl_connect('button_press_event', onclick)
 
 plt.show(1)
-print(coords)
