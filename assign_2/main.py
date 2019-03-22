@@ -26,15 +26,12 @@ images = []
 img1 = cv2.imread(imagePaths[0])
 img2 = cv2.imread(imagePaths[1])
 
-# cv2.namedWindow('Image 1', cv2.WINDOW_NORMAL)
-# cv2.resizeWindow('Image 1', 700, 700)
+fig = plt.figure()
+ax1 = fig.add_subplot(121)
+ax2 = fig.add_subplot(122)
+ax1.imshow(img1),plt.title('Image 1')
+ax2.imshow(img2),plt.title('Image 2')
 
-plt.subplot(121),plt.imshow(img1),plt.title('Image 1')
-#cv2.setMouseCallback('Image 1', image_functions.getPixels)
-plt.subplot(122),plt.imshow(img2),plt.title('Image 2')
+cid = fig.canvas.mpl_connect('button_press_event', image_functions.onclick)
 
 plt.show()
-#cv2.imshow('Image 1', img)
-#
-# cv2.waitKey(0)
-# cv2.destroyAllWindows()
