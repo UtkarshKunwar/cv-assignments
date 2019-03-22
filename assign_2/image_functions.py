@@ -4,16 +4,6 @@ import cv2
 import sys, os
 import argparse
 
-#function to get pixel values from the given image using mouse pointer using opencv
-def getPixels(event,x,y,flags,param):
-    if event == cv2.EVENT_FLAG_LBUTTON:
-        print(x,y)
-
-#function to get pixel values from the given image using mouse pointer using matplotlib
-def onclick(event):
-    print("x = ",event.xdata, "y = ",event.ydata)
-
-
 #form matrix A and B for AX = B using given 8 points
 def matrixFormation(pts1, pts2):
 
