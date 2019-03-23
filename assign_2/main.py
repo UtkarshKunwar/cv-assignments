@@ -31,17 +31,25 @@ ax1.imshow(img1), ax1.set_title('Image 1')
 ax2.imshow(img2), ax2.set_title('Image 2')
 
 #function to get pixel values from the given image using mouse pointer using matplotlib
+counter = 1
 def onclick(event):
     global ix, iy
     ix, iy = event.xdata, event.ydata
     global coords
-    coords.append((ix, iy))
-    if len(coords) == 8:
+    global counter
+    if counter == 1:
+        coords[0].append((ix, iy))
+    else:
+        coords[1].append((ix, iy))
+    counter = counter * -1
+
+    if len(coords[1]) == 4:
         fig.canvas.mpl_disconnect(cid)
         plt.close(1)
     return
 
-coords = []
+coords = [[], []]
 cid = fig.canvas.mpl_connect('button_press_event', onclick)
 
 plt.show(1)
+print(coords)
