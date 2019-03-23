@@ -10,7 +10,3 @@ def getPixels(event,x,y,flags,param):
     print(pts)
     if event == cv2.EVENT_FLAG_LBUTTON:
         print(x,y)
-
-#function to get pixel values from the given image using mouse pointer using matplotlib
-def onclick(event):
-    print("x = ",event.xdata, "y = ",event.ydata)
