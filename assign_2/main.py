@@ -68,5 +68,7 @@ plt.imshow(dst)
 plt.show(2)
 
 A, B = image_functions.matrixFormation(pts1, pts2)
-sol_ls = np.linalg.lstsq(A,B, rcond=None)
+sol_ls = np.linalg.lstsq(A,B, rcond=None)[0]
+sol_ls = np.append(sol_ls, 1.0)
+sol_ls = np.reshape(sol_ls, (3, 3))
 print('M through least square method: \n', sol_ls)
