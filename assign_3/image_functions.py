@@ -4,6 +4,7 @@ import cv2
 import sys, os
 import argparse
 
+# Returns the point correspondences between two images.
 def getPointCorrespondences(img1, img2, num=0):
     sift = cv2.xfeatures2d.SIFT_create()
 
@@ -34,27 +35,42 @@ def getPointCorrespondences(img1, img2, num=0):
         return np.int32(pts1[:num]), np.int32(pts2[:num])
     return np.int32(pts1), np.int32(pts2)
 
-def getNormalizedCoordinates(img, pts):
-    height, width, channels = img.shape
+# Returns the normalised points along with the transformation matrix.
+def getNormalizedCoordinates(pts):
+    # Finding mean.
+    avg = np.array([0, 0], dtype=np.float32)
     for pt in pts:
-        pt[0] = 2 * np.float32(pt[0])/np.float32(width) - 1
-        pt[1] = 2 * np.float32(pt[1])/np.float32(height) - 1
-    return pts
+        avg[0] += pt[0]
+        avg[1] += pt[1]
+    avg = avg / len(pts)
+
+    # Using norm to get scale.
+    scale = 0
+    for pt in pts:
+        scale += np.linalg.norm([(pt[0] - avg[0]), (pt[1] - avg[1])])
+    scale /= len(pts)
+    scale = np.sqrt(2) / scale
+
+    # Scaling points
+    for pt in pts:
+        pt[0] = (pt[0] - avg[0]) * scale
+        pt[1] = (pt[1] - avg[1]) * scale
+
+    # Transformation matrix.
+    T = np.array([[scale, 0, -scale * avg[0]], [0, scale, -scale * avg[1]], [0, 0, 1]], dtype=np.float32)
+    return pts, T
 
 # Gives the fundamental matrix.
-def getFundamentalMatrix(img1, pts1, img2, pts2):
-
-    #define A matrix
-    A = np.zeros((len(pts1), 9))
+def getFundamentalMatrix(pts1, pts2):
     pts1_norm = np.copy(pts1)
     pts1_norm = np.float32(pts1_norm)
-    pts1_norm = getNormalizedCoordinates(img1, pts1_norm)
+    pts1_norm, T1 = getNormalizedCoordinates(pts1_norm)
     pts2_norm = np.copy(pts2)
     pts2_norm = np.float32(pts2_norm)
-    pts2_norm = getNormalizedCoordinates(img2, pts2_norm)
-    print(pts1_norm)
-    print(pts2_norm)
+    pts2_norm, T2 = getNormalizedCoordinates(pts2_norm)
 
+    # Define A matrix
+    A = np.zeros((len(pts1), 9))
     for i in range(len(pts1)):
         A.itemset((i, 0), pts1_norm[i][0] * pts2_norm[i][0])
         A.itemset((i, 1), pts1_norm[i][1] * pts2_norm[i][0])
@@ -66,24 +82,26 @@ def getFundamentalMatrix(img1, pts1, img2, pts2):
         A.itemset((i, 7), pts1_norm[i][1])
         A.itemset((i, 8), 1)
 
-    # get F (fundamental matrix using SVD)
-    u, s, vh = np.linalg.svd(A, full_matrices=True)
+    # Get F (fundamental matrix using eigenvalue).
+    w, v = np.linalg.eig(np.matmul(np.transpose(A), A))
+    F = v[:, len(v) - 1]
 
-    # F is the last column of v
-    F = vh[:, 2]
+    # F is the last column of v.
     F = np.reshape(F, (3, 3))
 
-    # decompose F using SVD
+    # Decompose F using SVD.
     u_f, s_f, vh_f = u, s, vh = np.linalg.svd(F, full_matrices=True)
 
-    #make the last diagonal element of s_f to be zero
-    s_f = np.diag(s_f)
-    s_f.itemset((2, 2), 0)
+    # Make the last diagonal element of s_f to be zero.
+    s_f[2] = 0.0
 
-    #multiply u_f, modified s_f, vh_f together to get the low rank F
-    F = np.matmul(u_f, np.matmul(s_f, vh_f))
-    for i in range(3):
-        for j in range(3):
-            F[i][j] = F[i][j] / F[2][2]
+    # Multiply u_f, modified s_f, vh_f together to get the low rank F.
+    F = np.matmul(u_f, np.matmul(np.diag(s_f), vh_f))
+
+    # Get unnormalised F.
+    F = np.matmul(np.transpose(T2), np.matmul(F, T1))
+
+    # Make last value 1
+    F = F / F[2][2]
 
     return F

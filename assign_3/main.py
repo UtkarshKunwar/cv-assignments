@@ -28,11 +28,9 @@ img2 = cv2.imread(imagePaths[1])
 img2 = cv2.cvtColor(img2, cv2.COLOR_BGR2RGB)
 print('Image1 size: ',img1.shape,'Image 2 size: ', img2.shape)
 
+# Get point correspondences.
 pts1, pts2 = getPointCorrespondences(img1, img2)
 
 # Find and print the fundamental matrix.
-F = getFundamentalMatrix(img1, pts1, img2, pts2)
+F = getFundamentalMatrix(pts1, pts2)
 print("Fundamental Matrix:\n", F)
-
-cv_F, mask = cv2.findFundamentalMat(pts1, pts2, cv2.FM_LMEDS)
-print("\nCV2 Fundamental Matrix:\n", cv_F)
