@@ -34,20 +34,36 @@ def getPointCorrespondences(img1, img2, num=0):
         return np.int32(pts1[:num]), np.int32(pts2[:num])
     return np.int32(pts1), np.int32(pts2)
 
+def getNormalizedCoordinates(img, pts):
+    height, width, channels = img.shape
+    for pt in pts:
+        pt[0] = 2 * np.float32(pt[0])/np.float32(width) - 1
+        pt[1] = 2 * np.float32(pt[1])/np.float32(height) - 1
+    return pts
+
 # Gives the fundamental matrix.
-def getFundamentalMatrix(pts1, pts2):
+def getFundamentalMatrix(img1, pts1, img2, pts2):
 
     #define A matrix
     A = np.zeros((len(pts1), 9))
+    pts1_norm = np.copy(pts1)
+    pts1_norm = np.float32(pts1_norm)
+    pts1_norm = getNormalizedCoordinates(img1, pts1_norm)
+    pts2_norm = np.copy(pts2)
+    pts2_norm = np.float32(pts2_norm)
+    pts2_norm = getNormalizedCoordinates(img2, pts2_norm)
+    print(pts1_norm)
+    print(pts2_norm)
+
     for i in range(len(pts1)):
-        A.itemset((i, 0), pts1[i][0] * pts2[i][0])
-        A.itemset((i, 1), pts1[i][1] * pts2[i][0])
-        A.itemset((i, 2), pts2[i][0])
-        A.itemset((i, 3), pts1[i][0] * pts2[i][1])
-        A.itemset((i, 4), pts1[i][1] * pts2[i][1])
-        A.itemset((i, 5), pts2[i][1])
-        A.itemset((i, 6), pts1[i][0])
-        A.itemset((i, 7), pts1[i][1])
+        A.itemset((i, 0), pts1_norm[i][0] * pts2_norm[i][0])
+        A.itemset((i, 1), pts1_norm[i][1] * pts2_norm[i][0])
+        A.itemset((i, 2), pts2_norm[i][0])
+        A.itemset((i, 3), pts1_norm[i][0] * pts2_norm[i][1])
+        A.itemset((i, 4), pts1_norm[i][1] * pts2_norm[i][1])
+        A.itemset((i, 5), pts2_norm[i][1])
+        A.itemset((i, 6), pts1_norm[i][0])
+        A.itemset((i, 7), pts1_norm[i][1])
         A.itemset((i, 8), 1)
 
     # get F (fundamental matrix using SVD)
@@ -66,5 +82,8 @@ def getFundamentalMatrix(pts1, pts2):
 
     #multiply u_f, modified s_f, vh_f together to get the low rank F
     F = np.matmul(u_f, np.matmul(s_f, vh_f))
+    for i in range(3):
+        for j in range(3):
+            F[i][j] = F[i][j] / F[2][2]
 
     return F
