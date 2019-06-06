@@ -33,8 +33,11 @@ for path in paths:
 
 # Loading
 img = cv2.imread(img_path)
+img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 disp = cv2.imread(disp_path)
+disp = cv2.cvtColor(disp, cv2.COLOR_BGR2GRAY)
 img2 = cv2.imread(other_path)
+img2 = cv2.cvtColor(img2, cv2.COLOR_BGR2RGB)
 
 # Gives the blur radius given depth
 def get_blur_radius(depth):
@@ -74,8 +77,8 @@ def get_defocused_image(img, disp, factor=4, other=False, right=True):
 print("Getting defocused image (1/2)")
 result = get_defocused_image(img, disp)
 print("Writing defocused image (1/2)")
-cv2.imwrite("{}".format(output_dir + "/defocus1.png"), result)
+cv2.imwrite("{}".format(output_dir + "/defocus1.png"), cv2.cvtColor(result, cv2.COLOR_RGB2BGR))
 print("Getting defocused image (2/2)")
 result = get_defocused_image(img2, disp, other=True)
 print("Writing defocused image (2/2)")
-cv2.imwrite("{}".format(output_dir + "/defocus2.png"), result)
+cv2.imwrite("{}".format(output_dir + "/defocus2.png"), cv2.cvtColor(result, cv2.COLOR_RGB2BGR))
