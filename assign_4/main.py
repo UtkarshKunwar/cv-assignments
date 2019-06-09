@@ -74,11 +74,26 @@ def get_defocused_image(img, disp, factor=4, other=False, right=True):
         result = np.where(mask == (255, 255, 255), blurred_img, result)
     return result
 
-print("Getting defocused image (1/2)")
-result = get_defocused_image(img, disp)
-print("Writing defocused image (1/2)")
-cv2.imwrite("{}".format(output_dir + "/defocus1.png"), cv2.cvtColor(result, cv2.COLOR_RGB2BGR))
-print("Getting defocused image (2/2)")
-result = get_defocused_image(img2, disp, other=True)
-print("Writing defocused image (2/2)")
-cv2.imwrite("{}".format(output_dir + "/defocus2.png"), cv2.cvtColor(result, cv2.COLOR_RGB2BGR))
+# Gives the relative blur parameter which is proportional to blur radius
+def get_relative_blur_parameter(blur1, blur2):
+    rows, cols, depth = blur1.shape
+    gray1 = cv2.cvtColor(blur1, cv2.COLOR_BGR2GRAY)
+    gray2 = cv2.cvtColor(blur2, cv2.COLOR_BGR2GRAY)
+    relative_blur = gray1[:]
+    relative_blur[:] = (np.ceil(np.abs(np.sqrt(np.square(gray1) - np.square(gray2))))) * 8
+    #relative_blur.reshape((relative_blur.shape[0] * relative_blur.shape[1], 1))
+    return relative_blur
+
+
+print("Getting defocused image (1/3)")
+result1 = get_defocused_image(img, disp)
+print("Writing defocused image (1/3)")
+cv2.imwrite("{}".format(output_dir + "/defocus1.png"), cv2.cvtColor(result1, cv2.COLOR_RGB2BGR))
+print("Getting defocused image (2/3)")
+result2 = get_defocused_image(img2, disp, other=True)
+print("Writing defocused image (2/3)")
+cv2.imwrite("{}".format(output_dir + "/defocus2.png"), cv2.cvtColor(result2, cv2.COLOR_RGB2BGR))
+print("Getting relative blur parameter image (3/3)")
+result3 = get_relative_blur_parameter(result1, result2)
+print("Writing relative blur parameter image (3/3)")
+cv2.imwrite("{}".format(output_dir + "/relative_blur.png"), result3)
