@@ -21,8 +21,12 @@ print("[INFO] loading images...")
 imagePaths = sorted(list(paths.list_images(args["images"])))
 images = []
 
+#loading and swaping image channels for proper display in matplotlib
 img1 = cv2.imread(imagePaths[0])
+img1 = cv2.cvtColor(img1, cv2.COLOR_BGR2RGB)
 img2 = cv2.imread(imagePaths[1])
+img2 = cv2.cvtColor(img2, cv2.COLOR_BGR2RGB)
+print('Image1 size: ',img1.shape,'Image 2 size: ', img2.shape)
 
 fig = plt.figure()
 ax1 = fig.add_subplot(121)
@@ -52,4 +56,23 @@ coords = [[], []]
 cid = fig.canvas.mpl_connect('button_press_event', onclick)
 
 plt.show(1)
-print(coords)
+
+pts1 = np.float32(coords[0])
+pts2 = np.float32(coords[1])
+
+M = cv2.getPerspectiveTransform(pts1,pts2)
+print('M through open cv : \n', M)
+M = np.array([[1, 0, 1], [1, 1, 0], [0, 0, 1]], dtype=np.float32)
+
+dst = cv2.warpPerspective(img1,M,(2000,2000))
+cv2.imwrite("res.png", dst)
+plt.imshow(dst)
+plt.show(2)
+
+A, B = image_functions.matrixFormation(pts1, pts2)
+sol_ls = np.linalg.lstsq(A,B, rcond=None)[0]
+sol_ls = np.append(sol_ls, 1.0)
+sol_ls = np.reshape(sol_ls, (3, 3))
+print('M through least square method: \n', sol_ls)
+
+np.save("homo_param.npy", sol_ls)

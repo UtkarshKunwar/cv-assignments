@@ -21,6 +21,7 @@ args = parser.parse_args()
 #------------------------------------------------------------------------------------------------------
 # load the rgb image
 img_path = args.img_path
+dir_path = "./"
 if not os.path.exists(img_path):
     print("Invalid image path.")
     sys.exit(1)
@@ -36,12 +37,14 @@ origin = np.array([[args.origin[0]], [args.origin[1]]])
 #carry out rotation
 if args.rotation:
     img_rot = image_functions.rotateImage(args.rotation, img, origin)
+    cv2.imwrite(dir_path + "/img_rot.png", img_rot)
     cv2.namedWindow('Rotated Image', cv2.WINDOW_NORMAL)
     #cv2.resizeWindow('Rotated Image', 500, 500)
     cv2.imshow('Rotated Image', img_rot)
 
 if args.rotation_bilinear:
     img_rot_bi = image_functions.rotateImageBI(args.rotation_bilinear, img, origin)
+    cv2.imwrite(dir_path + "/img_rot_bi.png", img_rot_bi)
     cv2.namedWindow('Rotated Image Bilinear', cv2.WINDOW_NORMAL)
     cv2.resizeWindow('Rotated Image Bilinear', 500, 500)
     cv2.imshow('Rotated Image Bilinear', img_rot_bi)
@@ -53,6 +56,7 @@ if args.affine:
     A = np.array([[args.affine[0], args.affine[1], args.affine[2]],
                   [args.affine[3], args.affine[4], args.affine[5]]])
     img_aff = image_functions.affine(A, img, origin)
+    cv2.imwrite(dir_path + "/img_aff.png", img_aff)
     cv2.namedWindow('Affined Image', cv2.WINDOW_NORMAL)
     cv2.resizeWindow('Affined Image', 500, 500)
     cv2.imshow('Affined Image', img_aff)
@@ -66,6 +70,7 @@ if args.homography:
                   [args.homography[3], args.homography[4], args.homography[5]],
                   [args.homography[6], args.homography[7], args.homography[8]]])
     img_homo = image_functions.homography(H, img, origin)
+    cv2.imwrite(dir_path + "/img_homo.png", img_homo)
     cv2.namedWindow('Homographied Image', cv2.WINDOW_NORMAL)
     cv2.resizeWindow('Homographied Image', 500, 500)
     cv2.imshow('Homographied Image', img_homo)
